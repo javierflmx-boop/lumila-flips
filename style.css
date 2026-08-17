@@ -113,7 +113,7 @@ blockquote b{color:var(--mango);font-weight:600;font-style:normal;}
 /* PORTFOLIO GALLERY — real photos, museum-placard framing */
 .portfolio{background:var(--char-2);border-top:1px solid rgba(201,161,90,0.2);border-bottom:1px solid rgba(201,161,90,0.2);}
 .portfolio .section-label{color:var(--brass);}
-.pf-grid{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:130px;gap:10px;margin-top:64px;}
+.pf-grid{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:130px;grid-auto-flow:dense;gap:10px;margin-top:64px;}
 .pf-tile{position:relative;overflow:hidden;border:1px solid rgba(201,161,90,0.35);box-shadow:inset 0 0 40px rgba(0,0,0,0.35);}
 .pf-tile img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(0.92) contrast(1.03);transition:transform .6s var(--ease);}
 .pf-tile:hover img{transform:scale(1.04);}
@@ -191,7 +191,7 @@ footer .fnote{font-size:12px;color:rgba(245,241,232,0.4);letter-spacing:0.04em;}
 .p-status{font-size:11px;letter-spacing:0.08em;text-transform:uppercase;padding:7px 14px;font-weight:600;height:fit-content;}
 
 /* GALLERY — museum-placard treatment: charred-wood ground, brass hairline frame, typeset caption like a gallery label */
-.gallery{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:120px;gap:10px;margin-top:64px;}
+.gallery{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:120px;grid-auto-flow:dense;gap:10px;margin-top:64px;}
 .g-tile{position:relative;overflow:hidden;background:
     radial-gradient(120% 140% at 15% 0%, rgba(232,169,74,0.10), transparent 55%),
     repeating-linear-gradient(90deg, rgba(0,0,0,0.35) 0px, rgba(0,0,0,0.35) 2px, transparent 2px, transparent 26px),
