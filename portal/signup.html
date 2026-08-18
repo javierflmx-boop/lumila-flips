@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investor Access — Lumina Flips</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  .portal-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px;}
+  .portal-card{max-width:420px;width:100%;background:var(--char-2);border:1px solid rgba(201,161,90,0.3);padding:44px 38px;}
+  .portal-card h1{font-family:var(--serif);font-size:30px;color:var(--cream);margin-bottom:10px;}
+  .portal-card p.sub{font-size:14px;color:rgba(243,238,227,0.55);font-weight:300;line-height:1.6;margin-bottom:28px;}
+  .portal-field{margin-bottom:16px;}
+  .portal-field label{display:block;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(243,238,227,0.5);margin-bottom:8px;}
+  .portal-field input{width:100%;background:var(--char);border:1px solid rgba(201,161,90,0.35);color:var(--cream);padding:13px 16px;font-family:var(--sans);font-size:14px;}
+  .portal-btn{width:100%;margin-top:8px;}
+  .portal-msg{font-size:13px;margin-top:16px;display:none;}
+  .portal-msg.error{color:#c96b6b;display:block;}
+  .portal-msg.success{color:#7fae7f;display:block;}
+  .portal-link{margin-top:24px;text-align:center;font-size:13px;color:rgba(243,238,227,0.5);}
+  .portal-link a{color:var(--mango);text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="portal-wrap">
+  <div class="portal-card">
+    <h1>Investor Access</h1>
+    <p class="sub">This portal is by invitation only. Enter the passcode you were given, along with your email and a password.</p>
+
+    <div class="portal-field">
+      <label>Invite Code</label>
+      <input type="text" id="inviteCode" placeholder="Your passcode">
+    </div>
+    <div class="portal-field">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="you@email.com">
+    </div>
+    <div class="portal-field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Choose a password">
+    </div>
+    <button class="btn-primary portal-btn" onclick="handleSignup()" type="button">Create Account</button>
+    <div class="portal-msg" id="msg"></div>
+    <div class="portal-link">Already have access? <a href="login.html">Log in</a></div>
+  </div>
+</div>
+
+<script>
+  // === Fill these in with your real Supabase project values ===
+  const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+  const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  async function handleSignup(){
+    const code = document.getElementById('inviteCode').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const msg = document.getElementById('msg');
+    msg.className = 'portal-msg';
+
+    if(!code || !email || !password){
+      msg.textContent = "Fill in all three fields.";
+      msg.className = 'portal-msg error';
+      return;
+    }
+
+    // 1. Check the invite code is real and unused
+    const { data: codeRow, error: codeErr } = await supabase
+      .from('invite_codes')
+      .select('code, property_id, is_used')
+      .eq('code', code)
+      .eq('is_used', false)
+      .single();
+
+    if(codeErr || !codeRow){
+      msg.textContent = "That code isn't valid or has already been used.";
+      msg.className = 'portal-msg error';
+      return;
+    }
+
+    // 2. Create the account
+    const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({ email, password });
+    if(signUpErr){
+      msg.textContent = signUpErr.message;
+      msg.className = 'portal-msg error';
+      return;
+    }
+
+    // 3. Mark the code used
+    await supabase.from('invite_codes').update({ is_used: true, used_by: email }).eq('code', code);
+
+    // 4. Grant access to that property
+    await supabase.from('investor_access').insert({ email, property_id: codeRow.property_id });
+
+    msg.textContent = "Account created. Redirecting...";
+    msg.className = 'portal-msg success';
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
+  }
+</script>
+</body>
+</html>
