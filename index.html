@@ -32,23 +32,6 @@
   <div class="scroll-cue">Scroll</div>
 </section>
 
-<section class="section proof">
-  <div class="wrap">
-    <div class="proof-grid reveal">
-      <div class="proof-number">$80K</div>
-      <div class="proof-text">
-        <div class="label">Solo flip · net profit</div>
-        <p>The last house I flipped on my own — no partners, no crew markup, every trade handled or run by me directly. That's the baseline this model is built on.</p>
-      </div>
-    </div>
-    <div class="stat-row reveal">
-      <div class="stat"><div class="num">20+</div><div class="lbl">Years contracting</div></div>
-      <div class="stat"><div class="num">100%</div><div class="lbl">Renovation done in-house</div></div>
-      <div class="stat"><div class="num">407</div><div class="lbl">Renovations — active company</div></div>
-    </div>
-  </div>
-</section>
-
 <section class="material-band">
   <div class="wrap reveal">
     <div class="section-label">Craft, Not Cosmetics</div>
@@ -116,6 +99,12 @@
   </div>
 </section>
 
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-close" id="lightboxClose">&times;</div>
+  <img id="lightboxImg" src="" alt="">
+  <div class="lightbox-cap" id="lightboxCap"></div>
+</div>
+
 <section class="section" id="model">
   <div class="wrap">
     <div class="reveal">
@@ -139,6 +128,38 @@
         <p>Your investment is returned first. What's left is net profit — split by an agreed percentage, written into an operating agreement per house.</p>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="section quote-section">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-label">The Reality</div>
+      <h2 class="section-title" style="color:var(--cream);">This isn't a weekend show.</h2>
+    </div>
+    <div class="why-list reveal">
+      <div class="why-row">
+        <div class="n">01</div>
+        <h4>What's behind the walls</h4>
+        <p>You don't know what a house actually needs until demo starts. Old wiring, plumbing, or foundation issues show up after the offer is already accepted — not before.</p>
+      </div>
+      <div class="why-row">
+        <div class="n">02</div>
+        <h4>Permits don't move on TV time</h4>
+        <p>A single failed inspection can stall a project for weeks. Every permit pulled and inspection passed is operational reality, not a 45-minute episode.</p>
+      </div>
+      <div class="why-row">
+        <div class="n">03</div>
+        <h4>Timelines slip — that's normal</h4>
+        <p>Subcontractors miss dates. Materials get backordered. A 6-month project running 7 or 8 isn't a failure — it's the job, and it's priced in from the start.</p>
+      </div>
+      <div class="why-row">
+        <div class="n">04</div>
+        <h4>The market doesn't wait for you</h4>
+        <p>Every month a house sits unsold costs money — the loan, the taxes, the insurance. Timing the sale matters as much as the renovation itself.</p>
+      </div>
+    </div>
+    <p class="mb-note" style="margin-top:32px;">This is why the operator matters more than the money. 20 years of doing this is what keeps a flip on schedule and on budget — not luck.</p>
   </div>
 </section>
 
@@ -209,6 +230,28 @@
     entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } });
   }, {threshold:0.12});
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Lightbox for portfolio gallery
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxCap = document.getElementById('lightboxCap');
+  const lightboxClose = document.getElementById('lightboxClose');
+
+  document.querySelectorAll('.pf-tile').forEach(tile => {
+    tile.addEventListener('click', () => {
+      const img = tile.querySelector('img');
+      const cap = tile.querySelector('.pf-cap');
+      lightboxImg.src = img.src;
+      lightboxImg.alt = img.alt;
+      lightboxCap.textContent = cap ? cap.textContent : '';
+      lightbox.classList.add('open');
+    });
+  });
+
+  function closeLightbox(){ lightbox.classList.remove('open'); }
+  lightbox.addEventListener('click', closeLightbox);
+  lightboxClose.addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeLightbox(); });
 </script>
 
 </body>
