@@ -93,6 +93,25 @@
   </div>
 </section>
 
+<section class="section">
+  <div class="wrap">
+    <div class="access-gate reveal" id="accessGate">
+      <div class="ag-label">Restricted</div>
+      <div class="ag-title">Full Listing &amp; Address</div>
+      <p class="ag-note">The exact address and full Zillow/MLS listing are shared directly with serious partners — not posted publicly. If you have the passcode, enter it below.</p>
+      <div class="ag-form">
+        <input type="password" id="agInput" placeholder="Enter passcode">
+        <button class="btn-primary" onclick="checkAccessCode()" type="button">Unlock</button>
+      </div>
+      <div class="ag-error" id="agError">That passcode isn't right — reach out directly if you don't have it yet.</div>
+      <div class="ag-content">
+        <div class="ag-address">[Full address goes here]</div>
+        <a href="#" id="agZillowLink" target="_blank" rel="noopener">View full listing on Zillow →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="section fin-section" id="financials">
   <div class="wrap">
     <div class="reveal">
@@ -136,6 +155,30 @@
 </footer>
 
 <script>
+  // ACCESS GATE — soft deterrent only, not real security.
+  // Change ACCESS_CODE below to your own passcode before sharing this page.
+  // Note: since this is a static site with no backend, this code IS visible
+  // to anyone who views this page's source/JS. It stops casual viewers and
+  // search engines, not a determined person. For real per-investor access
+  // control, that needs a backend (e.g. Supabase, like your other apps).
+  const ACCESS_CODE = "lumina2026";
+  const REAL_ADDRESS = "[Fill in the real street address here]";
+  const ZILLOW_URL = "[Paste the real Zillow/MLS link here]";
+
+  function checkAccessCode(){
+    const input = document.getElementById('agInput').value.trim().toLowerCase();
+    const gate = document.getElementById('accessGate');
+    const error = document.getElementById('agError');
+    if(input === ACCESS_CODE.toLowerCase()){
+      document.querySelector('#accessGate .ag-address').textContent = REAL_ADDRESS;
+      document.getElementById('agZillowLink').href = ZILLOW_URL;
+      gate.classList.add('unlocked');
+      error.classList.remove('show');
+    } else {
+      error.classList.add('show');
+    }
+  }
+
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } });
   }, {threshold:0.12});
