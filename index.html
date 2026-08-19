@@ -203,61 +203,16 @@
 </footer>
 
 <script>
-  const SUPABASE_URL = "https://bazjxqyywzlachbjrrgo.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhemp4cXl5d3psYWNoYmpycmdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwODM1NDcsImV4cCI6MjEwMjY1OTU0N30.8EYLGHyvNigGckfJToYZBr5QqeB0rG9pb1qeNMq0KBg";
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const STATUS_LABEL = { available: 'Available', contract: 'Under Contract', sold: 'Sold' };
-  const money = n => n ? '$' + Math.round(n/1000) + 'K' : '$0';
-
-  async function loadPropertyCards(){
-    const grid = document.getElementById('pcardGrid');
-    try {
-      const { data, error } = await supabase
-        .from('properties')
-        .select('*')
-        .eq('is_published', true)
-        .order('created_at', { ascending: false });
-
-      if(error || !data || data.length === 0){
-        grid.innerHTML = '<p style="color:rgba(0,0,0,0.4);font-size:13px;">No properties published yet.</p>';
-        return;
-      }
-
-      grid.innerHTML = data.map(p => {
-        const photo = (p.public_photos && p.public_photos[0]) ? p.public_photos[0] : null;
-        return `
-        <a href="properties/view.html?slug=${p.slug}" class="pcard">
-          <div class="pcard-status status-${p.status}">${STATUS_LABEL[p.status] || 'Available'}</div>
-          <div class="pcard-photo">
-            ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : ''}
-            <div class="cap">${p.location || ''}</div>
-          </div>
-          <div class="pcard-body">
-            <div class="pcard-name">${p.name}</div>
-            <div class="pcard-loc">${p.location || ''}</div>
-            <div class="pcard-figs">
-              <div class="f"><div class="k">Purchase</div><div class="v">${money(p.purchase_price)}</div></div>
-              <div class="f"><div class="k">Target</div><div class="v">${money(p.sale_price)}</div></div>
-            </div>
-            <div class="pcard-arrow">↗</div>
-          </div>
-        </a>`;
-      }).join('');
-    } catch (err) {
-      console.error('Failed to load properties:', err);
-      grid.innerHTML = '<p style="color:rgba(0,0,0,0.4);font-size:13px;">Properties are temporarily unavailable.</p>';
-    }
-  }
-
-  loadPropertyCards();
-
+  // ============================================================
+  // VISUALS FIRST — this block runs no matter what happens with
+  // Supabase below it. Reveal animations and the lightbox will
+  // always work, even if the database connection fails entirely.
+  // ============================================================
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } });
   }, {threshold:0.12});
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  document.querySelectorAll('.reveal').forEach(el => { el.classList.add('js-ready'); observer.observe(el); });
 
-  // Lightbox for portfolio gallery
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightboxImg');
   const lightboxCap = document.getElementById('lightboxCap');
@@ -278,6 +233,69 @@
   lightbox.addEventListener('click', closeLightbox);
   lightboxClose.addEventListener('click', closeLightbox);
   document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeLightbox(); });
+</script>
+
+<script>
+  // ============================================================
+  // PROPERTIES FROM SUPABASE — isolated in its own script tag.
+  // If this whole block fails (network issue, blocked script, etc.)
+  // it cannot affect anything above it — the rest of the page
+  // already rendered and works independently of this.
+  // ============================================================
+  try {
+    const SUPABASE_URL = "https://bazjxqyywzlachbjrrgo.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhemp4cXl5d3psYWNoYmpycmdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwODM1NDcsImV4cCI6MjEwMjY1OTU0N30.8EYLGHyvNigGckfJToYZBr5QqeB0rG9pb1qeNMq0KBg";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const STATUS_LABEL = { available: 'Available', contract: 'Under Contract', sold: 'Sold' };
+    const money = n => n ? '$' + Math.round(n/1000) + 'K' : '$0';
+
+    async function loadPropertyCards(){
+      const grid = document.getElementById('pcardGrid');
+      try {
+        const { data, error } = await supabase
+          .from('properties')
+          .select('*')
+          .eq('is_published', true)
+          .order('created_at', { ascending: false });
+
+        if(error || !data || data.length === 0){
+          grid.innerHTML = '<p style="color:rgba(0,0,0,0.4);font-size:13px;">No properties published yet.</p>';
+          return;
+        }
+
+        grid.innerHTML = data.map(p => {
+          const photo = (p.public_photos && p.public_photos[0]) ? p.public_photos[0] : null;
+          return `
+          <a href="properties/view.html?slug=${p.slug}" class="pcard">
+            <div class="pcard-status status-${p.status}">${STATUS_LABEL[p.status] || 'Available'}</div>
+            <div class="pcard-photo">
+              ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : ''}
+              <div class="cap">${p.location || ''}</div>
+            </div>
+            <div class="pcard-body">
+              <div class="pcard-name">${p.name}</div>
+              <div class="pcard-loc">${p.location || ''}</div>
+              <div class="pcard-figs">
+                <div class="f"><div class="k">Purchase</div><div class="v">${money(p.purchase_price)}</div></div>
+                <div class="f"><div class="k">Target</div><div class="v">${money(p.sale_price)}</div></div>
+              </div>
+              <div class="pcard-arrow">↗</div>
+            </div>
+          </a>`;
+        }).join('');
+      } catch (err) {
+        console.error('Failed to load properties:', err);
+        grid.innerHTML = '<p style="color:rgba(0,0,0,0.4);font-size:13px;">Properties are temporarily unavailable.</p>';
+      }
+    }
+
+    loadPropertyCards();
+  } catch (err) {
+    console.error('Supabase failed to initialize:', err);
+    const grid = document.getElementById('pcardGrid');
+    if(grid) grid.innerHTML = '<p style="color:rgba(0,0,0,0.4);font-size:13px;">Properties are temporarily unavailable.</p>';
+  }
 </script>
 
 </body>

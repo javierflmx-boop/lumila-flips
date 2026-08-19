@@ -61,7 +61,8 @@ h1 em{font-style:italic;color:var(--mango);}
 .section{padding:160px 0;position:relative;}
 .section-label{font-size:11px;letter-spacing:0.24em;text-transform:uppercase;color:var(--mango);font-weight:500;margin-bottom:20px;}
 .section-title{font-family:var(--serif);font-size:clamp(30px,4vw,48px);font-weight:500;line-height:1.1;max-width:680px;}
-.reveal{opacity:0;transform:translateY(28px);transition:opacity 1.1s var(--ease), transform 1.1s var(--ease);}
+.reveal{opacity:1;}
+.reveal.js-ready{opacity:0;transform:translateY(28px);transition:opacity 1.1s var(--ease), transform 1.1s var(--ease);}
 .reveal.in{opacity:1;transform:translateY(0);}
 
 /* PROOF */
