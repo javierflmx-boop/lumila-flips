@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- STEP 1: Update the title -->
+<title>Property Name — Lumina Flips</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" class="mark">LUMINA<span>·</span>FLIPS</a>
+  <div class="nav-right">
+    <a href="../index.html#properties" class="nav-link">All Properties</a>
+    <a href="#contact" class="cta-link">Talk Numbers</a>
+  </div>
+</nav>
+
+<section class="p-hero">
+  <div class="wrap">
+    <!-- STEP 2: Update breadcrumb text -->
+    <div class="p-breadcrumb reveal"><a href="../index.html">Home</a> &nbsp;/&nbsp; <a href="../index.html#properties">Properties</a> &nbsp;/&nbsp; Property Name</div>
+    <div class="p-title-row reveal">
+      <div>
+        <!-- STEP 3: Property name and location -->
+        <div class="p-title">Property Name</div>
+        <div class="p-loc">City, FL · Single-family · Full gut renovation</div>
+      </div>
+      <!-- STEP 4: Status — swap class to status-contract or status-sold, and update the text -->
+      <div class="p-status status-available">Available</div>
+    </div>
+
+    <!-- STEP 5: Public carousel — swipe/scroll, no passcode. Replace each .pc-tile
+         background with <img src="..."> when real photos are ready. Full gallery,
+         address, and Zillow link still live behind the passcode gate further down. -->
+    <div class="pc-carousel reveal">
+      <div class="pc-tile"><div class="pc-cap">Exterior — Before</div></div>
+      <div class="pc-tile"><div class="pc-cap">Living Room — Before</div></div>
+      <div class="pc-tile"><div class="pc-cap">Street View</div></div>
+    </div>
+    <div class="pc-note reveal">Swipe or scroll for more — the full gallery, address, and Zillow listing unlock with a passcode below.</div>
+    <div class="social-cred reveal">More finished work on <a href="https://www.instagram.com/407renovations" target="_blank" rel="noopener">@407renovations</a> →</div>
+
+    <!-- STEP 6: Specs -->
+    <div class="spec-row reveal">
+      <div class="spec"><div class="k">Beds</div><div class="v">0</div></div>
+      <div class="spec"><div class="k">Baths</div><div class="v">0</div></div>
+      <div class="spec"><div class="k">Sq Ft</div><div class="v">~0</div></div>
+      <div class="spec"><div class="k">Timeline</div><div class="v">~0 days</div></div>
+      <div class="spec"><div class="k">Purchase</div><div class="v">$0</div></div>
+      <div class="spec"><div class="k">ARV Target</div><div class="v">$0</div></div>
+    </div>
+
+    <!-- STEP 7: Story paragraph -->
+    <p class="p-story reveal">
+      One or two paragraphs on why this house, what condition it's in, and why the numbers work.
+    </p>
+  </div>
+</section>
+
+<section class="material-band">
+  <div class="wrap reveal">
+    <div class="section-label">Craft, Not Cosmetics</div>
+    <h2>Every material on this house is chosen because it earns its place — not because it was <b>on sale</b>.</h2>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-label">Finishes</div>
+      <h2 class="section-title">Built to look like it cost more than it did.</h2>
+    </div>
+    <!-- STEP 8: Adjust finish descriptions per house if needed -->
+    <div class="finish-grid reveal">
+      <div class="finish-item">
+        <div class="fk">Kitchen</div>
+        <div class="fv">Custom-fitted cabinetry</div>
+        <div class="fd">Quartz counters, matte black hardware, layout redesigned for actual flow.</div>
+      </div>
+      <div class="finish-item">
+        <div class="fk">Flooring</div>
+        <div class="fv">Engineered hardwood throughout</div>
+        <div class="fd">Consistent flooring from room to room, no sheet vinyl.</div>
+      </div>
+      <div class="finish-item">
+        <div class="fk">Baths</div>
+        <div class="fv">Real tile, floor to ceiling</div>
+        <div class="fd">Framed mirrors, matte fixtures, a palette that matches the rest of the house.</div>
+      </div>
+      <div class="finish-item">
+        <div class="fk">Paint &amp; Trim</div>
+        <div class="fv">Tonal palette, room by room</div>
+        <div class="fd">A designed palette that shows like a real home, not a rental.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <!-- STEP 9b: Set a unique passcode for this property in the script below (ACCESS_CODE), and fill in REAL_ADDRESS + ZILLOW_URL -->
+    <div class="access-gate reveal" id="accessGate">
+      <div class="ag-label">Restricted</div>
+      <div class="ag-title">Full Listing &amp; Address</div>
+      <p class="ag-note">The exact address and full Zillow/MLS listing are shared directly with serious partners — not posted publicly. If you have the passcode, enter it below.</p>
+      <div class="ag-form">
+        <input type="password" id="agInput" placeholder="Enter passcode">
+        <button class="btn-primary" onclick="checkAccessCode()" type="button">Unlock</button>
+      </div>
+      <div class="ag-error" id="agError">That passcode isn't right — reach out directly if you don't have it yet.</div>
+      <div class="ag-content">
+        <div class="ag-address">[Full address goes here]</div>
+        <a href="#" id="agZillowLink" target="_blank" rel="noopener">View full listing on Zillow →</a>
+        <div class="gallery" style="margin-top:24px;">
+          <div class="g-tile g-med"><div class="g-cap">Kitchen — Concept</div></div>
+          <div class="g-tile g-small"><div class="g-cap">Bath — Concept</div></div>
+          <div class="g-tile g-small"><div class="g-cap">Living Room — Before</div></div>
+          <div class="g-tile g-med"><div class="g-cap">Floor Plan</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section fin-section" id="financials">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-label">The Numbers</div>
+      <!-- STEP 9: Headline numbers -->
+      <h2 class="section-title">$0 in. $0 out.</h2>
+    </div>
+
+    <div class="deal-meta reveal">
+      <div><div class="k">Purchase price</div><div class="v">$0</div></div>
+      <div><div class="k">Target sale price</div><div class="v">$0</div></div>
+      <div><div class="k">Est. timeline</div><div class="v">~0 days</div></div>
+    </div>
+
+    <!-- STEP 10: The itemized cost breakdown stays out of the page on purpose — headline numbers earn attention, the full breakdown is what earns a phone call. Update the subject line below to match this property. -->
+    <div class="reveal">
+      <div class="split-note">
+        <div class="txt">Full cost breakdown, timeline, and profit split are covered directly — every partner sees the exact numbers before anything's signed.</div>
+      </div>
+      <div class="cta-inline">
+        <a href="mailto:invest@luminaflips.com?subject=Request%20Full%20Numbers" class="btn-primary">Request the Full Breakdown</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section contact" id="contact">
+  <div class="wrap">
+    <h2>Want to <em>fund</em> this one?</h2>
+    <p class="lead">I'll walk you through the full underwriting, the timeline, and the operating agreement before anything's signed.</p>
+    <div class="contact-actions">
+      <a href="mailto:invest@luminaflips.com?subject=Investor%20Interest" class="btn-primary">Email Me</a>
+      <a href="tel:+10000000000" class="btn-ghost">Call / Text</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="display:flex;justify-content:space-between;width:100%;flex-wrap:wrap;gap:12px;">
+    <div class="fmark">LUMINA<span>·</span>FLIPS</div>
+    <div class="fnote">A LUMILA HOLDINGS LLC COMPANY · ORLANDO, FL</div>
+  </div>
+</footer>
+
+<script>
+  // ACCESS GATE — soft deterrent only, not real security.
+  // Set your own passcode below for THIS property before sharing this page.
+  const ACCESS_CODE = "changeme";
+  const REAL_ADDRESS = "[Fill in the real street address here]";
+  const ZILLOW_URL = "[Paste the real Zillow/MLS link here]";
+
+  function checkAccessCode(){
+    const input = document.getElementById('agInput').value.trim().toLowerCase();
+    const gate = document.getElementById('accessGate');
+    const error = document.getElementById('agError');
+    if(input === ACCESS_CODE.toLowerCase()){
+      document.querySelector('#accessGate .ag-address').textContent = REAL_ADDRESS;
+      document.getElementById('agZillowLink').href = ZILLOW_URL;
+      gate.classList.add('unlocked');
+      error.classList.remove('show');
+    } else {
+      error.classList.add('show');
+    }
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } });
+  }, {threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
