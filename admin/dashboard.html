@@ -49,6 +49,8 @@
   <button class="logout-btn" onclick="handleLogout()">Log Out</button>
 </div>
 
+<div id="diagBanner" style="background:#c96b6b;color:#fff;padding:14px 28px;font-family:sans-serif;font-size:14px;">Diagnostic: page HTML loaded, waiting for JavaScript to run...</div>
+
 <div class="dash-wrap">
   <h1 style="font-family:var(--serif);font-size:26px;">Properties</h1>
   <div id="propList" style="margin-top:20px;"></div>
@@ -131,16 +133,41 @@
 </div>
 
 <script>
+  document.getElementById('diagBanner').textContent = 'Diagnostic: JavaScript IS running. Checking Supabase...';
+
   const SUPABASE_URL = "https://bazjxqyywzlachbjrrgo.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhemp4cXl5d3psYWNoYmpycmdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwODM1NDcsImV4cCI6MjEwMjY1OTU0N30.8EYLGHyvNigGckfJToYZBr5QqeB0rG9pb1qeNMq0KBg";
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let supabase;
+  let supabaseReady = false;
+  try {
+    if(typeof window.supabase === 'undefined'){
+      throw new Error('Supabase library failed to load. Check your internet connection and refresh the page.');
+    }
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    supabaseReady = true;
+    document.getElementById('diagBanner').textContent = 'Diagnostic: Supabase loaded OK. Checking login session...';
+    document.getElementById('diagBanner').style.background = '#7fae7f';
+  } catch (err) {
+    console.error('Supabase init failed:', err);
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.innerHTML = '<div style="padding:60px;color:#f3eee3;font-family:sans-serif;">Error loading admin panel: ' + err.message + '<br><br>Try refreshing the page. If this keeps happening, tell Claude the exact error above.</div>';
+    });
+  }
 
   let publicPhotoUrls = [];
   let gatedPhotoUrls = [];
 
   async function checkAuth(){
+    if(!supabaseReady) return;
     const { data: { session } } = await supabase.auth.getSession();
-    if(!session){ window.location.href = 'login.html'; return; }
+    if(!session){
+      document.getElementById('diagBanner').textContent = 'Diagnostic: No login session found — redirecting to login...';
+      window.location.href = 'login.html';
+      return;
+    }
+    document.getElementById('diagBanner').textContent = 'Diagnostic: Logged in as ' + session.user.email + '. Everything working — you can delete this banner.';
+    document.getElementById('diagBanner').style.background = '#4a6ca8';
     loadProperties();
   }
 
@@ -172,16 +199,22 @@
   }
 
   function openForm(){
-    document.getElementById('formPanel').classList.add('open');
-    document.getElementById('formTitle').textContent = 'New Property';
-    document.getElementById('editId').value = '';
-    ['f_name','f_slug','f_location','f_beds','f_baths','f_sqft','f_timeline','f_purchase','f_sale','f_story','f_passcode','f_address','f_zillow']
-      .forEach(id => document.getElementById(id).value = '');
-    document.getElementById('f_status').value = 'available';
-    document.getElementById('f_published').value = 'false';
-    publicPhotoUrls = [];
-    gatedPhotoUrls = [];
-    renderPreviews();
+    try {
+      document.getElementById('formPanel').classList.add('open');
+      document.getElementById('formTitle').textContent = 'New Property';
+      document.getElementById('editId').value = '';
+      ['f_name','f_slug','f_location','f_beds','f_baths','f_sqft','f_timeline','f_purchase','f_sale','f_story','f_passcode','f_address','f_zillow']
+        .forEach(id => document.getElementById(id).value = '');
+      document.getElementById('f_status').value = 'available';
+      document.getElementById('f_published').value = 'false';
+      publicPhotoUrls = [];
+      gatedPhotoUrls = [];
+      renderPreviews();
+      document.getElementById('formPanel').scrollIntoView({ behavior: 'smooth' });
+    } catch (err) {
+      console.error('openForm failed:', err);
+      alert('Something went wrong opening the form: ' + err.message);
+    }
   }
 
   function closeForm(){
