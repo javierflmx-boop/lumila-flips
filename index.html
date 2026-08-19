@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -162,9 +161,25 @@
       <div class="section-label">Properties</div>
       <h2 class="section-title">Open deals and finished work.</h2>
     </div>
-    <!-- Cards below load automatically from your admin panel — nothing to edit here by hand anymore. -->
-    <div class="pcard-grid reveal" id="pcardGrid">
-      <p style="color:rgba(0,0,0,0.4);font-size:13px;">Loading properties…</p>
+    <div class="pcard-grid reveal">
+
+      <a href="properties/190k-flip.html" class="pcard">
+        <div class="pcard-status status-available">Available</div>
+        <div class="pcard-photo"><div class="cap">Exterior — Before</div></div>
+        <div class="pcard-body">
+          <div class="pcard-name">The 190K Flip</div>
+          <div class="pcard-loc">Orlando, FL area</div>
+          <div class="pcard-figs">
+            <div class="f"><div class="k">Purchase</div><div class="v">$190K</div></div>
+            <div class="f"><div class="k">Target</div><div class="v">$360K</div></div>
+          </div>
+          <div class="pcard-arrow">↗</div>
+        </div>
+      </a>
+
+      <!-- Duplicate this <a class="pcard">…</a> block for each new property.
+           Add a matching page in /properties/ using properties/template.html as a starting point. -->
+
     </div>
   </div>
 </section>
@@ -203,51 +218,6 @@
 </footer>
 
 <script>
-<script>
-  const SUPABASE_URL = "https://bazjxqyywzlachbjrrgo.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhemp4cXl5d3psYWNoYmpycmdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwODM1NDcsImV4cCI6MjEwMjY1OTU0N30.8EYLGHyvNigGckfJToYZBr5QqeB0rG9pb1qeNMq0KBg";
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const STATUS_LABEL = { available: 'Available', contract: 'Under Contract', sold: 'Sold' };
-  const money = n => n ? '$' + Math.round(n/1000) + 'K' : '$0';
-
-  async function loadPropertyCards(){
-    const grid = document.getElementById('pcardGrid');
-    const { data, error } = await supabase
-      .from('properties')
-      .select('*')
-      .eq('is_published', true)
-      .order('created_at', { ascending: false });
-
-    if(error || !data || data.length === 0){
-      grid.innerHTML = '<p style="color:rgba(0,0,0,0.4);font-size:13px;">No properties published yet.</p>';
-      return;
-    }
-
-    grid.innerHTML = data.map(p => {
-      const photo = (p.public_photos && p.public_photos[0]) ? p.public_photos[0] : null;
-      return `
-      <a href="properties/view.html?slug=${p.slug}" class="pcard">
-        <div class="pcard-status status-${p.status}">${STATUS_LABEL[p.status] || 'Available'}</div>
-        <div class="pcard-photo">
-          ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : ''}
-          <div class="cap">${p.location || ''}</div>
-        </div>
-        <div class="pcard-body">
-          <div class="pcard-name">${p.name}</div>
-          <div class="pcard-loc">${p.location || ''}</div>
-          <div class="pcard-figs">
-            <div class="f"><div class="k">Purchase</div><div class="v">${money(p.purchase_price)}</div></div>
-            <div class="f"><div class="k">Target</div><div class="v">${money(p.sale_price)}</div></div>
-          </div>
-          <div class="pcard-arrow">↗</div>
-        </div>
-      </a>`;
-    }).join('');
-  }
-
-  loadPropertyCards();
-
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } });
   }, {threshold:0.12});
