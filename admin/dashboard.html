@@ -42,7 +42,7 @@
   .add-btn{margin-top:24px;}
 </style>
 </head>
-<body>
+<body onload="document.title = 'ONLOAD FIRED - ' + document.title;">
 
 <div class="dash-nav">
   <div class="mark">LUMINA<span>·</span>FLIPS <span style="font-size:12px;color:rgba(243,238,227,0.4);font-family:var(--sans);margin-left:6px;">ADMIN</span></div>
@@ -55,7 +55,7 @@
   <h1 style="font-family:var(--serif);font-size:26px;">Properties</h1>
   <div id="propList" style="margin-top:20px;"></div>
 
-  <button class="btn-primary add-btn" onclick="openForm()" type="button">+ Add New Property</button>
+  <button class="btn-primary add-btn" onclick="document.title = 'BUTTON CLICKED - ' + document.title; openForm();" type="button">+ Add New Property</button>
 
   <div class="form-panel" id="formPanel">
     <h2 style="font-family:var(--serif);font-size:20px;margin-bottom:20px;" id="formTitle">New Property</h2>
