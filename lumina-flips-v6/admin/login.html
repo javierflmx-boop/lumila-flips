@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Lumina Flips</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  .portal-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px;}
+  .portal-card{max-width:400px;width:100%;background:var(--char-2);border:1px solid rgba(201,161,90,0.3);padding:44px 38px;}
+  .portal-card h1{font-family:var(--serif);font-size:28px;color:var(--cream);margin-bottom:24px;}
+  .portal-field{margin-bottom:16px;}
+  .portal-field label{display:block;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(243,238,227,0.5);margin-bottom:8px;}
+  .portal-field input{width:100%;background:var(--char);border:1px solid rgba(201,161,90,0.35);color:var(--cream);padding:13px 16px;font-family:var(--sans);font-size:14px;}
+  .portal-btn{width:100%;margin-top:8px;}
+  .portal-msg{font-size:13px;margin-top:16px;color:#c96b6b;display:none;}
+  .portal-msg.show{display:block;}
+</style>
+</head>
+<body>
+<div class="portal-wrap">
+  <div class="portal-card">
+    <h1>Admin Login</h1>
+    <div class="portal-field">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="your@email.com">
+    </div>
+    <div class="portal-field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Your password">
+    </div>
+    <button class="btn-primary portal-btn" onclick="handleLogin()" type="button">Log In</button>
+    <div class="portal-msg" id="msg">Wrong email or password.</div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = "https://bazjxqyywzlachbjrrgo.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhemp4cXl5d3psYWNoYmpycmdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwODM1NDcsImV4cCI6MjEwMjY1OTU0N30.8EYLGHyvNigGckfJToYZBr5QqeB0rG9pb1qeNMq0KBg";
+
+  // handleLogin is defined FIRST, unconditionally, so the button always
+  // does SOMETHING when clicked — even if Supabase itself fails to load.
+  async function handleLogin(){
+    const msg = document.getElementById('msg');
+    msg.textContent = "Logging in...";
+    msg.classList.add('show');
+
+    if(typeof window.supabase === 'undefined'){
+      msg.textContent = "Error: the login library failed to load. Check your internet connection and try refreshing the page.";
+      return;
+    }
+
+    try {
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if(error){
+        msg.textContent = "Error: " + error.message;
+        console.error('Login error:', error);
+        return;
+      }
+      msg.textContent = "Success! Redirecting...";
+      window.location.href = 'dashboard.html';
+    } catch (err) {
+      msg.textContent = "Unexpected error: " + err.message;
+      console.error('Unexpected login error:', err);
+    }
+  }
+</script>
+</body>
+</html>
