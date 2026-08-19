@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — Lumina Flips</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  .dash-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 28px;border-bottom:1px solid var(--line);}
+  .dash-wrap{max-width:760px;margin:0 auto;padding:44px 24px 100px;}
+  .logout-btn{font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(243,238,227,0.6);background:none;border:1px solid var(--line);padding:9px 18px;cursor:pointer;font-family:var(--sans);}
+  .logout-btn:hover{border-color:var(--mango);color:var(--mango);}
+
+  .prop-row{display:flex;justify-content:space-between;align-items:center;background:var(--char-2);border:1px solid rgba(201,161,90,0.2);padding:16px 20px;margin-bottom:10px;}
+  .prop-row .pname{font-family:var(--serif);font-size:18px;}
+  .prop-row .pmeta{font-size:12px;color:rgba(243,238,227,0.45);margin-top:2px;}
+  .prop-row .pactions{display:flex;gap:8px;}
+  .mini-btn{font-size:11px;letter-spacing:0.05em;text-transform:uppercase;background:none;border:1px solid rgba(201,161,90,0.35);color:var(--cream);padding:7px 12px;cursor:pointer;font-family:var(--sans);}
+  .mini-btn:hover{border-color:var(--mango);color:var(--mango);}
+  .mini-btn.danger:hover{border-color:#c96b6b;color:#c96b6b;}
+  .pub-pill{font-size:10px;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;margin-left:8px;}
+  .pub-pill.live{background:var(--mango);color:var(--black);}
+  .pub-pill.draft{background:none;border:1px solid rgba(243,238,227,0.3);color:rgba(243,238,227,0.5);}
+
+  .form-panel{background:var(--char-2);border:1px solid rgba(201,161,90,0.3);padding:28px;margin-top:24px;display:none;}
+  .form-panel.open{display:block;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+  .form-row.full{grid-template-columns:1fr;}
+  .form-field label{display:block;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(243,238,227,0.5);margin-bottom:6px;}
+  .form-field input, .form-field textarea, .form-field select{
+    width:100%;background:var(--char);border:1px solid rgba(201,161,90,0.3);color:var(--cream);
+    padding:11px 14px;font-family:var(--sans);font-size:13px;
+  }
+  .form-field textarea{min-height:80px;resize:vertical;}
+  .form-field input[type="file"]{padding:8px;}
+  .photo-preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+  .photo-preview img{width:60px;height:60px;object-fit:cover;border:1px solid rgba(201,161,90,0.3);}
+  .save-row{display:flex;gap:12px;margin-top:20px;align-items:center;}
+  .upload-status{font-size:12px;color:var(--mango);margin-top:6px;display:none;}
+  .add-btn{margin-top:24px;}
+</style>
+</head>
+<body>
+
+<div class="dash-nav">
+  <div class="mark">LUMINA<span>·</span>FLIPS <span style="font-size:12px;color:rgba(243,238,227,0.4);font-family:var(--sans);margin-left:6px;">ADMIN</span></div>
+  <button class="logout-btn" onclick="handleLogout()">Log Out</button>
+</div>
+
+<div class="dash-wrap">
+  <h1 style="font-family:var(--serif);font-size:26px;">Properties</h1>
+  <div id="propList" style="margin-top:20px;"></div>
+
+  <button class="btn-primary add-btn" onclick="openForm()" type="button">+ Add New Property</button>
+
+  <div class="form-panel" id="formPanel">
+    <h2 style="font-family:var(--serif);font-size:20px;margin-bottom:20px;" id="formTitle">New Property</h2>
+    <input type="hidden" id="editId">
+
+    <div class="form-row">
+      <div class="form-field"><label>Property Name</label><input id="f_name" placeholder="The 190K Flip"></div>
+      <div class="form-field"><label>URL Slug (no spaces)</label><input id="f_slug" placeholder="190k-flip"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Location</label><input id="f_location" placeholder="Orlando, FL area"></div>
+      <div class="form-field"><label>Status</label>
+        <select id="f_status">
+          <option value="available">Available</option>
+          <option value="contract">Under Contract</option>
+          <option value="sold">Sold</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Beds</label><input id="f_beds" type="number"></div>
+      <div class="form-field"><label>Baths</label><input id="f_baths" type="number"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Sq Ft</label><input id="f_sqft" placeholder="~1,450"></div>
+      <div class="form-field"><label>Timeline</label><input id="f_timeline" placeholder="~90 days"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Purchase Price ($)</label><input id="f_purchase" type="number"></div>
+      <div class="form-field"><label>Target Sale Price ($)</label><input id="f_sale" type="number"></div>
+    </div>
+    <div class="form-row full">
+      <div class="form-field"><label>Story / Description</label><textarea id="f_story"></textarea></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Passcode (unlocks address + more photos)</label><input id="f_passcode" placeholder="lumina2026"></div>
+      <div class="form-field"><label>Real Address</label><input id="f_address" placeholder="123 Main St, Orlando, FL"></div>
+    </div>
+    <div class="form-row full">
+      <div class="form-field"><label>Zillow Link</label><input id="f_zillow" placeholder="https://zillow.com/..."></div>
+    </div>
+
+    <div class="form-row full">
+      <div class="form-field">
+        <label>Public Photos (visible to everyone, no passcode)</label>
+        <input type="file" id="f_public_upload" multiple accept="image/*">
+        <div class="upload-status" id="publicUploadStatus">Uploading...</div>
+        <div class="photo-preview" id="publicPreview"></div>
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="form-field">
+        <label>Gated Photos (unlock with passcode)</label>
+        <input type="file" id="f_gated_upload" multiple accept="image/*">
+        <div class="upload-status" id="gatedUploadStatus">Uploading...</div>
+        <div class="photo-preview" id="gatedPreview"></div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label>Published (visible on live site)</label>
+        <select id="f_published">
+          <option value="false">No — draft, hidden from site</option>
+          <option value="true">Yes — live on the site now</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="save-row">
+      <button class="btn-primary" onclick="saveProperty()" type="button">Save Property</button>
+      <button class="mini-btn" onclick="closeForm()" type="button">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = "https://bazjxqyywzlachbjrrgo.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhemp4cXl5d3psYWNoYmpycmdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwODM1NDcsImV4cCI6MjEwMjY1OTU0N30.8EYLGHyvNigGckfJToYZBr5QqeB0rG9pb1qeNMq0KBg";
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let publicPhotoUrls = [];
+  let gatedPhotoUrls = [];
+
+  async function checkAuth(){
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session){ window.location.href = 'login.html'; return; }
+    loadProperties();
+  }
+
+  async function handleLogout(){
+    await supabase.auth.signOut();
+    window.location.href = 'login.html';
+  }
+
+  async function loadProperties(){
+    const { data, error } = await supabase.from('properties').select('*').order('created_at', { ascending: false });
+    const list = document.getElementById('propList');
+    if(!data || data.length === 0){
+      list.innerHTML = '<p style="color:rgba(243,238,227,0.4);font-size:13px;">No properties yet — add your first one below.</p>';
+      return;
+    }
+    list.innerHTML = data.map(p => `
+      <div class="prop-row">
+        <div>
+          <div class="pname">${p.name} <span class="pub-pill ${p.is_published ? 'live' : 'draft'}">${p.is_published ? 'Live' : 'Draft'}</span></div>
+          <div class="pmeta">${p.location || ''} · $${(p.purchase_price||0).toLocaleString()} → $${(p.sale_price||0).toLocaleString()}</div>
+        </div>
+        <div class="pactions">
+          <button class="mini-btn" onclick="editProperty('${p.id}')">Edit</button>
+          <button class="mini-btn danger" onclick="deleteProperty('${p.id}')">Delete</button>
+        </div>
+      </div>
+    `).join('');
+    window._properties = data;
+  }
+
+  function openForm(){
+    document.getElementById('formPanel').classList.add('open');
+    document.getElementById('formTitle').textContent = 'New Property';
+    document.getElementById('editId').value = '';
+    ['f_name','f_slug','f_location','f_beds','f_baths','f_sqft','f_timeline','f_purchase','f_sale','f_story','f_passcode','f_address','f_zillow']
+      .forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f_status').value = 'available';
+    document.getElementById('f_published').value = 'false';
+    publicPhotoUrls = [];
+    gatedPhotoUrls = [];
+    renderPreviews();
+  }
+
+  function closeForm(){
+    document.getElementById('formPanel').classList.remove('open');
+  }
+
+  function editProperty(id){
+    const p = window._properties.find(x => x.id === id);
+    if(!p) return;
+    openForm();
+    document.getElementById('formTitle').textContent = 'Edit Property';
+    document.getElementById('editId').value = p.id;
+    document.getElementById('f_name').value = p.name || '';
+    document.getElementById('f_slug').value = p.slug || '';
+    document.getElementById('f_location').value = p.location || '';
+    document.getElementById('f_status').value = p.status || 'available';
+    document.getElementById('f_beds').value = p.beds || '';
+    document.getElementById('f_baths').value = p.baths || '';
+    document.getElementById('f_sqft').value = p.sqft || '';
+    document.getElementById('f_timeline').value = p.timeline || '';
+    document.getElementById('f_purchase').value = p.purchase_price || '';
+    document.getElementById('f_sale').value = p.sale_price || '';
+    document.getElementById('f_story').value = p.story || '';
+    document.getElementById('f_passcode').value = p.passcode || '';
+    document.getElementById('f_address').value = p.real_address || '';
+    document.getElementById('f_zillow').value = p.zillow_url || '';
+    document.getElementById('f_published').value = String(p.is_published);
+    publicPhotoUrls = p.public_photos || [];
+    gatedPhotoUrls = p.gated_photos || [];
+    renderPreviews();
+  }
+
+  function renderPreviews(){
+    document.getElementById('publicPreview').innerHTML = publicPhotoUrls.map(u => `<img src="${u}">`).join('');
+    document.getElementById('gatedPreview').innerHTML = gatedPhotoUrls.map(u => `<img src="${u}">`).join('');
+  }
+
+  async function uploadPhotos(inputId, statusId, urlArray){
+    const input = document.getElementById(inputId);
+    const files = input.files;
+    if(!files || files.length === 0) return;
+    const status = document.getElementById(statusId);
+    status.style.display = 'block';
+    for(const file of files){
+      const path = `${Date.now()}-${file.name.replace(/\s+/g,'-')}`;
+      const { error } = await supabase.storage.from('property-photos').upload(path, file);
+      if(!error){
+        const { data } = supabase.storage.from('property-photos').getPublicUrl(path);
+        urlArray.push(data.publicUrl);
+      }
+    }
+    status.style.display = 'none';
+    renderPreviews();
+    input.value = '';
+  }
+
+  document.getElementById('f_public_upload').addEventListener('change', () => uploadPhotos('f_public_upload', 'publicUploadStatus', publicPhotoUrls));
+  document.getElementById('f_gated_upload').addEventListener('change', () => uploadPhotos('f_gated_upload', 'gatedUploadStatus', gatedPhotoUrls));
+
+  async function saveProperty(){
+    const id = document.getElementById('editId').value;
+    const record = {
+      name: document.getElementById('f_name').value,
+      slug: document.getElementById('f_slug').value.trim().toLowerCase().replace(/\s+/g,'-'),
+      location: document.getElementById('f_location').value,
+      status: document.getElementById('f_status').value,
+      beds: parseInt(document.getElementById('f_beds').value) || null,
+      baths: parseInt(document.getElementById('f_baths').value) || null,
+      sqft: document.getElementById('f_sqft').value,
+      timeline: document.getElementById('f_timeline').value,
+      purchase_price: parseFloat(document.getElementById('f_purchase').value) || null,
+      sale_price: parseFloat(document.getElementById('f_sale').value) || null,
+      story: document.getElementById('f_story').value,
+      passcode: document.getElementById('f_passcode').value,
+      real_address: document.getElementById('f_address').value,
+      zillow_url: document.getElementById('f_zillow').value,
+      public_photos: publicPhotoUrls,
+      gated_photos: gatedPhotoUrls,
+      is_published: document.getElementById('f_published').value === 'true'
+    };
+
+    if(id){
+      await supabase.from('properties').update(record).eq('id', id);
+    } else {
+      await supabase.from('properties').insert(record);
+    }
+    closeForm();
+    loadProperties();
+  }
+
+  async function deleteProperty(id){
+    if(!confirm('Delete this property? This cannot be undone.')) return;
+    await supabase.from('properties').delete().eq('id', id);
+    loadProperties();
+  }
+
+  checkAuth();
+</script>
+</body>
+</html>

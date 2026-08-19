@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Property — Lumina Flips</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" class="mark">LUMINA<span>·</span>FLIPS</a>
+  <div class="nav-right">
+    <a href="../index.html#properties" class="nav-link">All Properties</a>
+    <a href="#contact" class="cta-link">Talk Numbers</a>
+  </div>
+</nav>
+
+<div id="loadingState" style="padding-top:160px;text-align:center;color:rgba(243,238,227,0.5);">Loading…</div>
+
+<div id="propertyContent" style="display:none;">
+
+  <section class="p-hero">
+    <div class="wrap">
+      <div class="p-breadcrumb reveal in"><a href="../index.html">Home</a> &nbsp;/&nbsp; <a href="../index.html#properties">Properties</a> &nbsp;/&nbsp; <span id="crumbName"></span></div>
+      <div class="p-title-row reveal in">
+        <div>
+          <div class="p-title" id="propName"></div>
+          <div class="p-loc" id="propLoc"></div>
+        </div>
+        <div class="p-status" id="propStatus"></div>
+      </div>
+
+      <div class="pc-carousel reveal in" id="publicCarousel"></div>
+      <div class="pc-note reveal in">Swipe or scroll for more — the full gallery, address, and Zillow listing unlock with a passcode below.</div>
+      <div class="social-cred reveal in">More finished work on <a href="https://www.instagram.com/407renovations" target="_blank" rel="noopener">@407renovations</a> →</div>
+
+      <div class="spec-row reveal in" id="specRow"></div>
+
+      <p class="p-story reveal in" id="propStory"></p>
+    </div>
+  </section>
+
+  <section class="material-band">
+    <div class="wrap reveal in">
+      <div class="section-label">Craft, Not Cosmetics</div>
+      <h2>Every material on this house is chosen because it earns its place — not because it was <b>on sale</b>.</h2>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="access-gate reveal in" id="accessGate">
+        <div class="ag-label">Restricted</div>
+        <div class="ag-title">Full Listing &amp; Address</div>
+        <p class="ag-note">The exact address and full Zillow/MLS listing are shared directly with serious partners — not posted publicly. If you have the passcode, enter it below.</p>
+        <div class="ag-form">
+          <input type="password" id="agInput" placeholder="Enter passcode">
+          <button class="btn-primary" onclick="checkAccessCode()" type="button">Unlock</button>
+        </div>
+        <div class="ag-error" id="agError">That passcode isn't right — reach out directly if you don't have it yet.</div>
+        <div class="ag-content">
+          <div class="ag-address" id="agAddress"></div>
+          <a href="#" id="agZillowLink" target="_blank" rel="noopener">View full listing on Zillow →</a>
+          <div class="gallery" style="margin-top:24px;" id="gatedGallery"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section fin-section" id="financials">
+    <div class="wrap">
+      <div class="reveal in">
+        <div class="section-label">The Numbers</div>
+        <h2 class="section-title" id="numbersTitle"></h2>
+      </div>
+      <div class="deal-meta reveal in" id="dealMeta"></div>
+      <div class="reveal in">
+        <div class="split-note">
+          <div class="txt">Full cost breakdown, timeline, and profit split are covered directly — every partner sees the exact numbers before anything's signed.</div>
+        </div>
+        <div class="cta-inline">
+          <a href="#" id="requestBreakdownLink" class="btn-primary">Request the Full Breakdown</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section contact" id="contact">
+    <div class="wrap">
+      <h2>Want to <em>fund</em> this one?</h2>
+      <p class="lead">I'll walk you through the full underwriting, the timeline, and the operating agreement before anything's signed.</p>
+      <div class="contact-actions">
+        <a href="#" id="emailCta" class="btn-primary">Email Me</a>
+        <a href="tel:+10000000000" class="btn-ghost">Call / Text</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap" style="display:flex;justify-content:space-between;width:100%;flex-wrap:wrap;gap:12px;">
+      <div class="fmark">LUMINA<span>·</span>FLIPS</div>
+      <div class="fnote">A LUMILA HOLDINGS LLC COMPANY · ORLANDO, FL</div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  const SUPABASE_URL = "https://bazjxqyywzlachbjrrgo.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhemp4cXl5d3psYWNoYmpycmdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwODM1NDcsImV4cCI6MjEwMjY1OTU0N30.8EYLGHyvNigGckfJToYZBr5QqeB0rG9pb1qeNMq0KBg";
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const STATUS_LABEL = { available: 'Available', contract: 'Under Contract', sold: 'Sold' };
+  const money = n => n ? '$' + Math.round(n).toLocaleString('en-US') : '$0';
+
+  let currentProperty = null;
+
+  async function loadProperty(){
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('slug');
+    if(!slug){
+      document.getElementById('loadingState').textContent = 'No property specified.';
+      return;
+    }
+
+    const { data, error } = await supabase.from('properties').select('*').eq('slug', slug).eq('is_published', true).single();
+    if(error || !data){
+      document.getElementById('loadingState').textContent = 'Property not found.';
+      return;
+    }
+    currentProperty = data;
+    render(data);
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('propertyContent').style.display = 'block';
+  }
+
+  function render(p){
+    document.title = p.name + ' — Lumina Flips';
+    document.getElementById('crumbName').textContent = p.name;
+    document.getElementById('propName').textContent = p.name;
+    document.getElementById('propLoc').textContent = (p.location || '') + ' · Single-family · Full gut renovation';
+    document.getElementById('propStatus').textContent = STATUS_LABEL[p.status] || 'Available';
+    document.getElementById('propStatus').className = 'p-status status-' + p.status;
+    document.getElementById('propStory').textContent = p.story || '';
+
+    const publicPhotos = p.public_photos || [];
+    document.getElementById('publicCarousel').innerHTML = publicPhotos.length
+      ? publicPhotos.map(url => `<div class="pc-tile"><img src="${url}" style="width:100%;height:100%;object-fit:cover;"></div>`).join('')
+      : '<div class="pc-tile"><div class="pc-cap">Photos coming soon</div></div>';
+
+    document.getElementById('specRow').innerHTML = `
+      <div class="spec"><div class="k">Beds</div><div class="v">${p.beds || '—'}</div></div>
+      <div class="spec"><div class="k">Baths</div><div class="v">${p.baths || '—'}</div></div>
+      <div class="spec"><div class="k">Sq Ft</div><div class="v">${p.sqft || '—'}</div></div>
+      <div class="spec"><div class="k">Timeline</div><div class="v">${p.timeline || '—'}</div></div>
+      <div class="spec"><div class="k">Purchase</div><div class="v">${money(p.purchase_price)}</div></div>
+      <div class="spec"><div class="k">ARV Target</div><div class="v">${money(p.sale_price)}</div></div>
+    `;
+
+    document.getElementById('numbersTitle').textContent = `${money(p.purchase_price)} in. ${money(p.sale_price)} out.`;
+    document.getElementById('dealMeta').innerHTML = `
+      <div><div class="k">Purchase price</div><div class="v">${money(p.purchase_price)}</div></div>
+      <div><div class="k">Target sale price</div><div class="v">${money(p.sale_price)}</div></div>
+      <div><div class="k">Est. timeline</div><div class="v">${p.timeline || '—'}</div></div>
+    `;
+
+    const subject = encodeURIComponent(`${p.name} — Request Full Numbers`);
+    document.getElementById('requestBreakdownLink').href = `mailto:invest@luminaflips.com?subject=${subject}`;
+    document.getElementById('emailCta').href = `mailto:invest@luminaflips.com?subject=${encodeURIComponent(p.name + ' — Investor Interest')}`;
+  }
+
+  function checkAccessCode(){
+    const input = document.getElementById('agInput').value.trim();
+    const gate = document.getElementById('accessGate');
+    const error = document.getElementById('agError');
+    if(!currentProperty) return;
+
+    if(input && currentProperty.passcode && input.toLowerCase() === currentProperty.passcode.toLowerCase()){
+      document.getElementById('agAddress').textContent = currentProperty.real_address || 'Address not set yet';
+      document.getElementById('agZillowLink').href = currentProperty.zillow_url || '#';
+      const gatedPhotos = currentProperty.gated_photos || [];
+      document.getElementById('gatedGallery').innerHTML = gatedPhotos.map(url =>
+        `<div class="g-tile g-med"><img src="${url}" style="width:100%;height:100%;object-fit:cover;"></div>`
+      ).join('');
+      gate.classList.add('unlocked');
+      error.classList.remove('show');
+    } else {
+      error.classList.add('show');
+    }
+  }
+
+  loadProperty();
+</script>
+</body>
+</html>
