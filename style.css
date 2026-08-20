@@ -185,6 +185,7 @@ blockquote b{color:var(--mango);font-weight:600;font-style:normal;}
 .pcard-figs{display:flex;justify-content:space-between;border-top:1px solid var(--line-dark);padding-top:14px;}
 .pcard-figs .f .k{font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:var(--graphite);}
 .pcard-figs .f .v{font-family:var(--serif);font-size:17px;}
+.pcard-figs .f.target .v{font-size:24px;font-weight:600;color:var(--mango);}
 .pcard-arrow{position:absolute;bottom:22px;right:22px;font-family:var(--serif);font-size:20px;color:var(--rust);transition:transform .25s ease;}
 .pcard:hover .pcard-arrow{transform:translate(4px,-4px);}
 
